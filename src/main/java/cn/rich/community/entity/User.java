@@ -1,44 +1,64 @@
 package cn.rich.community.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-
-@Setter
+/**
+ * <p>
+ * 
+ * </p>
+ *
+ * @author rich
+ * @since 2024-07-10
+ */
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
-public class User {
+@Setter
+@Accessors(chain = true)
+@TableName("user")
+public class User implements Serializable {
 
-    private int id;
+    private static final long serialVersionUID = 1L;
+
+      @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
+    @TableField("username")
     private String username;
+
+    @TableField("password")
     private String password;
+
+    @TableField("salt")
     private String salt;
+
+    @TableField("email")
     private String email;
-    private int type;
-    private int status;
+
+    /**
+     * 0-普通用户; 1-超级管理员; 2-版主;
+     */
+    @TableField("type")
+    private Integer type;
+
+    /**
+     * 0-未激活; 1-已激活;
+     */
+    @TableField("status")
+    private Integer status;
+
+    @TableField("activation_code")
     private String activationCode;
+
+    @TableField("header_url")
     private String headerUrl;
+
+    @TableField("create_time")
     private Date createTime;
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", salt='" + salt + '\'' +
-                ", email='" + email + '\'' +
-                ", type=" + type +
-                ", status=" + status +
-                ", activationCode='" + activationCode + '\'' +
-                ", headerUrl='" + headerUrl + '\'' +
-                ", createTime=" + createTime +
-                '}';
-    }
-
 }

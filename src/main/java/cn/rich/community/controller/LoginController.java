@@ -6,6 +6,7 @@
 //import cn.rich.community.util.CommunityConstant;
 //import cn.rich.community.util.CommunityUtil;
 //import cn.rich.community.util.RedisKeyUtil;
+//import lombok.extern.slf4j.Slf4j;
 //import org.apache.commons.lang3.StringUtils;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
@@ -30,9 +31,8 @@
 //import java.util.concurrent.TimeUnit;
 //
 //@Controller
+//@Slf4j
 //public class LoginController implements CommunityConstant {
-//
-//    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 //
 //    @Autowired
 //    private UserService userService;
@@ -46,19 +46,10 @@
 //    @Autowired
 //    private RedisTemplate redisTemplate;
 //
-//    @RequestMapping(path = "/register", method = RequestMethod.GET)
-//    public String getRegisterPage() {
-//        return "/site/register";
-//    }
-//
-//    @RequestMapping(path = "/login", method = RequestMethod.GET)
-//    public String getLoginPage() {
-//        return "/site/login";
-//    }
 //
 //    @RequestMapping(path = "/register", method = RequestMethod.POST)
-//    public String register(Model model, User user) {
-//        Map<String, Object> map = userService.register(user);
+//    public String register(User user) {
+//        userService.register(user);
 //        if (map == null || map.isEmpty()) {
 //            model.addAttribute("msg", "注册成功,我们已经向您的邮箱发送了一封激活邮件,请尽快激活!");
 //            model.addAttribute("target", "/index");
@@ -71,7 +62,6 @@
 //        }
 //    }
 //
-//    // http://localhost:8080/community/activation/101/code
 //    @RequestMapping(path = "/activation/{userId}/{code}", method = RequestMethod.GET)
 //    public String activation(Model model, @PathVariable("userId") int userId, @PathVariable("code") String code) {
 //        int result = userService.activation(userId, code);
