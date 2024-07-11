@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * <p>
@@ -46,6 +47,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userMapper.selectOne(queryWrapper);
     }
 
+    public User findUserByName(String username) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        return userMapper.selectOne(queryWrapper);
+    }
+
     @Override
     public void register(User user) {
         // 空值处理
@@ -70,96 +77,42 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setPassword(CommunityUtil.md5(user.getPassword() + user.getSalt()));
         user.setType(0);
         user.setStatus(0);
-        user.setActivationCode(CommunityUtil.generateUUID());
-        user.setCreateTime(new Date());
         userMapper.insert(user);
     }
 
 
-//    public int activation(int userId, String code) {
-//        User user = userMapper.selectById(userId);
-//        if (user.getStatus() == 1) {
-//            return ACTIVATION_REPEAT;
-//        } else if (user.getActivationCode().equals(code)) {
-////            userMapper.updateStatus(userId, 1);
-//            clearCache(userId);
-//            return ACTIVATION_SUCCESS;
-//        } else {
-//            return ACTIVATION_FAILURE;
-//        }
-//    }
+    public void login(String username, String password, long expiredSeconds) {
+        // 空值处理
+        if (StringUtils.isBlank(username)) throw new IllegalArgumentException("账号不能为空!");
+        if (StringUtils.isBlank(password)) throw new IllegalArgumentException("密码不能为空!");
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        if (user == null) throw new IllegalArgumentException("该账号不存在!");
+        if (user.getStatus() == 0) throw new IllegalArgumentException("该账号已注销!");
 
-//    public void login(String username, String password, long expiredSeconds) {
+        // 验证密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (Objects.equals(user.getPassword(), password)) throw new IllegalArgumentException("密码不正确!");
+
+//        // 生成登录凭证
+//        LoginTicket loginTicket = new LoginTicket();
+//        loginTicket.setUserId(user.getId());
+//        loginTicket.setTicket(CommunityUtil.generateUUID());
+//        loginTicket.setStatus(0);
+//        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+////        loginTicketMapper.insertLoginTicket(loginTicket);
 //
-//        // 空值处理
-//        if (StringUtils.isBlank(username)) {
-//            map.put("usernameMsg", "账号不能为空!");
-//            return map;
-//        }
-//        if (StringUtils.isBlank(password)) {
-//            map.put("passwordMsg", "密码不能为空!");
-//            return map;
-//        }
+//        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+//        redisTemplate.opsForValue().set(redisKey, loginTicket);
 //
-//        // 验证账号
-////        User user = userMapper.selectByName(username);
-//        if (user == null) {
-//            map.put("usernameMsg", "该账号不存在!");
-//            return map;
-//        }
-//
-//        // 验证状态
-//        if (user.getStatus() == 0) {
-//            map.put("usernameMsg", "该账号未激活!");
-//            return map;
-//        }
-//
-//        // 验证密码
-//        password = CommunityUtil.md5(password + user.getSalt());
-//        if (!user.getPassword().equals(password)) {
-//            map.put("passwordMsg", "密码不正确!");
-//            return map;
-//        }
-//
-////        // 生成登录凭证
-////        LoginTicket loginTicket = new LoginTicket();
-////        loginTicket.setUserId(user.getId());
-////        loginTicket.setTicket(CommunityUtil.generateUUID());
-////        loginTicket.setStatus(0);
-////        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-//////        loginTicketMapper.insertLoginTicket(loginTicket);
+//        map.put("ticket", loginTicket.getTicket());
+    }
+
+    public void logout() {
+
+    }
 ////
-////        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
-////        redisTemplate.opsForValue().set(redisKey, loginTicket);
-////
-////        map.put("ticket", loginTicket.getTicket());
-//        return map;
-//    }
 //
-////    public void logout(String ticket) {
-//////        loginTicketMapper.updateStatus(ticket, 1);
-////        String redisKey = RedisKeyUtil.getTicketKey(ticket);
-////        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
-////        loginTicket.setStatus(1);
-////        redisTemplate.opsForValue().set(redisKey, loginTicket);
-////    }
-////
-////    public LoginTicket findLoginTicket(String ticket) {
-//////        return loginTicketMapper.selectByTicket(ticket);
-////        String redisKey = RedisKeyUtil.getTicketKey(ticket);
-////        return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
-////    }
 //
-//    public int updateHeader(int userId, String headerUrl) {
-////        return userMapper.updateHeader(userId, headerUrl);
-//        int rows = userMapper.updateHeader(userId, headerUrl);
-//        clearCache(userId);
-//        return rows;
-//    }
-//
-//    public User findUserByName(String username) {
-//        return userMapper.selectByName(username);
-//    }
 //
 //    // 1.优先从缓存中取值
 //    private User getCache(int userId) {

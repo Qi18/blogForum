@@ -42,23 +42,20 @@ public class User implements Serializable {
     private String email;
 
     /**
-     * 0-普通用户; 1-超级管理员; 2-版主;
+     * 0-普通用户; 1-管理员;
      */
     @TableField("type")
     private Integer type;
 
     /**
-     * 0-未激活; 1-已激活;
+     * 0-失效; 1-正常;
      */
     @TableField("status")
     private Integer status;
 
-    @TableField("activation_code")
-    private String activationCode;
+    @TableField("gmt_create")
+    private Date gmtCreate;
 
-    @TableField("header_url")
-    private String headerUrl;
-
-    @TableField("create_time")
-    private Date createTime;
+    @TableField("gmt_update")
+    private Date gmtUpdate;
 }
