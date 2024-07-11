@@ -52,13 +52,16 @@ public class MybatisPlusGenerator {
                         .parent("cn.rich.community")
                         .entity("entity")
                         .mapper("mapper")
+                        .service("service")
+                        .serviceImpl("service.impl")
                         .xml("mapper.xml")
                 )
                 .strategyConfig(builder -> {
                     for (String tableName : tableNames) builder.addInclude(tableName);
                     builder.entityBuilder().enableFileOverride().enableLombok().enableChainModel().enableTableFieldAnnotation();
                     builder.mapperBuilder().enableFileOverride();
-                    builder.serviceBuilder().disableService().disableServiceImpl();
+                    builder.serviceBuilder().formatServiceFileName("%sService").formatServiceImplFileName("%sServiceImpl");
+//                    builder.serviceBuilder().disableService().disableServiceImpl();
                     builder.controllerBuilder().disable();
                     }
                 )
