@@ -5,19 +5,18 @@
 
     <property name="APP_NAME" value="blogForum" />
     <property name="LOG_PATH" value="./log/" />
-    <property name="LOG_FILE" value="${LOG_PATH}/application.log" />
+
 
     <appender name="APPLICATION"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_FILE}</file>
         <encoder>
             <pattern>${FILE_LOG_PATTERN}</pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
-            <maxFileSize>50MB</maxFileSize>
             <totalSizeCap>20GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
     </appender>
 
