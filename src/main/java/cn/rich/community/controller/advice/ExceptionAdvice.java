@@ -20,6 +20,12 @@ public class ExceptionAdvice {
     @ExceptionHandler({Exception.class})
     public void handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.error("服务器发生异常: {}", e.getMessage());
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.setContentType("application/json;charset=UTF-8");
+        // 构建返回给前端的错误信息
+        String jsonResponse = String.format("{\"message\": \"服务器发生异常: %s\"}", e.getMessage());
+        // 将错误信息写入响应
+        response.getWriter().write(jsonResponse);
     }
 
 }

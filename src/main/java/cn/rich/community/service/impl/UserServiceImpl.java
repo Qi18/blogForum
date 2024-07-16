@@ -1,20 +1,30 @@
 package cn.rich.community.service.impl;
 
+import cn.rich.community.domain.ResponseResult;
+import cn.rich.community.domain.auth.LoginUser;
 import cn.rich.community.entity.User;
 import cn.rich.community.mapper.UserMapper;
 import cn.rich.community.service.UserService;
 import cn.rich.community.util.CommunityUtil;
 
+import cn.rich.community.util.JwtTokenUtil;
+import cn.rich.community.util.RedisKeyUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static cn.rich.community.util.CommunityConstant.*;
 
 /**
  * <p>
@@ -30,18 +40,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private UserMapper userMapper;
 
-    @Value("${server.servlet.context-path}")
-    private String contextPath;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+//    @Value("${server.servlet.context-path}")
+//    private String contextPath;
 
     @Autowired
     private RedisTemplate redisTemplate;
 
     @Override
     public User findUserById(int id) {
-//        User user = getCache(id);
-//        if (user == null) {
-//            user = initCache(id);
-//        }
+        User user = getCache(id);
+        if (user == null) {
+            user = initCache(id);
+        }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", id);
         return userMapper.selectOne(queryWrapper);
@@ -81,7 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
 
-    public void login(String username, String password, long expiredSeconds) {
+    public String login(String username, String password) {
         // 空值处理
         if (StringUtils.isBlank(username)) throw new IllegalArgumentException("账号不能为空!");
         if (StringUtils.isBlank(password)) throw new IllegalArgumentException("密码不能为空!");
@@ -89,70 +102,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) throw new IllegalArgumentException("该账号不存在!");
         if (user.getStatus() == 0) throw new IllegalArgumentException("该账号已注销!");
 
-        // 验证密码
+        // 数据库验证密码
         password = CommunityUtil.md5(password + user.getSalt());
         if (Objects.equals(user.getPassword(), password)) throw new IllegalArgumentException("密码不正确!");
-
-//        // 生成登录凭证
-//        LoginTicket loginTicket = new LoginTicket();
-//        loginTicket.setUserId(user.getId());
-//        loginTicket.setTicket(CommunityUtil.generateUUID());
-//        loginTicket.setStatus(0);
-//        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-////        loginTicketMapper.insertLoginTicket(loginTicket);
-//
-//        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
-//        redisTemplate.opsForValue().set(redisKey, loginTicket);
-//
-//        map.put("ticket", loginTicket.getTicket());
+        // 封装用户信息
+        LoginUser loginUser = new LoginUser(user);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(loginUser, user.getPassword());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 将用户信息放入缓存
+        String redisKey = RedisKeyUtil.getUserKey(user.getId());
+        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
+        return jwtTokenUtil.generateToken(loginUser);
     }
 
     public void logout() {
-
+        UsernamePasswordAuthenticationToken authentication =
+                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        Integer userId = loginUser.getUser().getId();
+        // 删除 redis 中的值
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(redisKey);
     }
-////
-//
-//
-//
-//    // 1.优先从缓存中取值
-//    private User getCache(int userId) {
-//        String redisKey = RedisKeyUtil.getUserKey(userId);
-//        return (User) redisTemplate.opsForValue().get(redisKey);
-//    }
-//
-//    // 2.取不到时初始化缓存数据
-//    private User initCache(int userId) {
-//        User user = userMapper.selectById(userId);
-//        String redisKey = RedisKeyUtil.getUserKey(userId);
-//        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
-//        return user;
-//    }
-//
-//    // 3.数据变更时清除缓存数据
-//    private void clearCache(int userId) {
-//        String redisKey = RedisKeyUtil.getUserKey(userId);
-//        redisTemplate.delete(redisKey);
-//    }
-//
-//    public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
-//        User user = this.findUserById(userId);
-//
-//        List<GrantedAuthority> list = new ArrayList<>();
-//        list.add(new GrantedAuthority() {
-//
-//            @Override
-//            public String getAuthority() {
-//                switch (user.getType()) {
-//                    case 1:
-//                        return AUTHORITY_ADMIN;
-//                    case 2:
-//                        return AUTHORITY_MODERATOR;
-//                    default:
-//                        return AUTHORITY_USER;
-//                }
-//            }
-//        });
-//        return list;
-//    }
-//
+
+    // 1.优先从缓存中取值
+    private User getCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        return (User) redisTemplate.opsForValue().get(redisKey);
+    }
+
+    // 2.取不到时初始化缓存数据
+    private User initCache(int userId) {
+        User user = userMapper.selectById(userId);
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
+        return user;
+    }
+
+    // 3.数据变更时清除缓存数据
+    private void clearCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(redisKey);
+    }
+
 }
