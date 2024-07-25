@@ -26,7 +26,10 @@ public class MybatisPlusGenerator {
     public static void main(String[] args) {
 //         需要生成的表名
         String[] tableNames = new String[] {
-                "user"
+                "user",
+                "discuss_post",
+                "comment",
+                "message",
         };
 //
 //        generateOthers("src/main/java", tableNames);

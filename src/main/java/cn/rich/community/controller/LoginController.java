@@ -51,7 +51,7 @@ public class LoginController {
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public ResponseResult<?> register(User user) {
         userService.register(user);
-        return new ResponseResult<>(200, "注册成功");
+        return ResponseResult.success("注册成功");
     }
 
     @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
@@ -92,13 +92,13 @@ public class LoginController {
         }
         // 登陆验证，生成JwtToken
         String jwtToken = userService.login(username, password);
-        return new ResponseResult<>(200, "登陆成功", jwtToken);
+        return ResponseResult.success(jwtToken);
     }
 
     @RequestMapping(path = "/securityLogout", method = RequestMethod.GET)
     public ResponseResult<?> logout() {
         userService.logout();
-        return new ResponseResult<>(200, "注销成功");
+        return ResponseResult.success("退出成功");
     }
 
 }

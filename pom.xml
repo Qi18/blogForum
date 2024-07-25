@@ -122,6 +122,20 @@
 			<version>0.9.1</version>
 		</dependency>
 
+		<!-- OAuth支持 -->
+<!--		<dependency>-->
+<!--			<groupId>me.zhyd.oauth</groupId>-->
+<!--			<artifactId>JustAuth</artifactId>-->
+<!--&lt;!&ndash;			<version>${latest.version}</version>&ndash;&gt;-->
+<!--		</dependency>-->
+
+		<!-- Spring验证注解	-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+<!--			<version></version>-->
+		</dependency>
+
 		<!-- Swagger API -->
 <!--		<dependency>-->
 <!--			<groupId>io.springfox</groupId>-->

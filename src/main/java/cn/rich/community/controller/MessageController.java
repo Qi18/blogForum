@@ -8,8 +8,9 @@
 //import cn.rich.community.entity.User;
 //import cn.rich.community.util.CommunityConstant;
 //import cn.rich.community.util.CommunityUtil;
-//import cn.rich.community.util.HostHolder;
 //import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.core.userdetails.UserDetails;
 //import org.springframework.stereotype.Controller;
 //import org.springframework.ui.Model;
 //import org.springframework.web.bind.annotation.PathVariable;
@@ -27,23 +28,16 @@
 //    private MessageService messageService;
 //
 //    @Autowired
-//    private HostHolder hostHolder;
-//
-//    @Autowired
 //    private UserService userService;
 //
 //    // 私信列表
 //    @RequestMapping(path = "/letter/list", method = RequestMethod.GET)
-//    public String getLetterList(Model model, Page page) {
-//        User user = hostHolder.getUser();
-//        // 分页信息
-//        page.setLimit(5);
-//        page.setPath("/letter/list");
-//        page.setRows(messageService.findConversationCount(user.getId()));
-//
+//    public String getLetterList(int index, int size) {
+//        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        User user = userService.findUserByName(userDetails.getUsername());
 //        // 会话列表
-//        List<Message> conversationList = messageService.findConversations(
-//                user.getId(), page.getOffset(), page.getLimit());
+//        List<Message> conversationList = messageService.findReceiveLetterByUser(user.getId(), index, size);
+//
 //        List<Map<String, Object>> conversations = new ArrayList<>();
 //        if (conversationList != null) {
 //            for (Message message : conversationList) {
@@ -60,6 +54,7 @@
 //        model.addAttribute("conversations", conversations);
 //
 //        // 查询未读消息数量
+//
 //        int letterUnreadCount = messageService.findLetterUnreadCount(user.getId(), null);
 //        model.addAttribute("letterUnreadCount", letterUnreadCount);
 //        int noticeUnreadCount = messageService.findNoticeUnreadCount(user.getId(), null);

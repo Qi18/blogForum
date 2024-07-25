@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,10 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         AUTHORITY_ADMIN
                 )
                 .antMatchers(
-                        "/discuss/top",
-                        "/discuss/wonderful",
-                        "/discuss/delete",
-                        "/data/**"
+                        "/admin/**"
                 )
                 .hasAnyAuthority(
                         AUTHORITY_ADMIN
@@ -103,7 +102,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         response.setCharacterEncoding("UTF-8");
                         response.setContentType("application/json");
 //                        response.getWriter().println(JSONUtil.parse(CommonResult.unauthorized(authException.getMessage())));
-                        response.getWriter().println(authException.getMessage());
+//                        response.getWriter().println(authException.getMessage());
+                        response.getWriter().println("请先登录");
                         // 刷新响应流，确保数据被发送
                         response.getWriter().flush();
                     }
@@ -117,7 +117,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         response.setCharacterEncoding("UTF-8");
                         response.setContentType("application/json");
 //                        response.getWriter().println(JSONUtil.parse(CommonResult.forbidden(accessDeniedException.getMessage())));
-                        response.getWriter().println(accessDeniedException.getMessage());
+//                        response.getWriter().println(accessDeniedException.getMessage());
+                        response.getWriter().println("权限不足");
                         response.getWriter().flush();
                     }
                 });
@@ -126,5 +127,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 覆盖它默认的逻辑,才能执行我们自己的退出代码.
         http.logout().logoutUrl("/securityLogout");
     }
+
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.jdbcAuthentication().dataSource()
+//                .passwordEncoder(passwordEncoder());
+//    }
 
 }

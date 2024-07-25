@@ -34,4 +34,12 @@ public class ResponseResult<T> {
         this.code = code;
         this.data = data;
     }
+
+    public static <T> ResponseResult<T> success(T data) {
+        return new ResponseResult<>(200, data);
+    }
+
+    public static <T> ResponseResult<T> error(Integer code, String msg) {
+        return new ResponseResult<>(code, msg);
+    }
 }

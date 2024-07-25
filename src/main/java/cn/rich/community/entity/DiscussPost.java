@@ -1,64 +1,67 @@
 package cn.rich.community.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-@Document(indexName = "discusspost", type = "_doc", shards = 6, replicas = 3)
-@Setter
+/**
+ * <p>
+ * 
+ * </p>
+ *
+ * @author rich
+ * @since 2024-07-25
+ */
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
-public class DiscussPost {
+@Setter
+@Accessors(chain = true)
+@TableName("discuss_post")
+public class DiscussPost implements Serializable {
 
-    @Id
-    private int id;
+    private static final long serialVersionUID = 1L;
 
-    @Field(type = FieldType.Integer)
-    private int userId;
+      @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
-    // 互联网校招
-    @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+    @TableField("user_id")
+    private String userId;
+
+    @TableField("title")
     private String title;
 
-    @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+    @TableField("content")
     private String content;
 
-    @Field(type = FieldType.Integer)
-    private int type;
+    /**
+     * 0-普通; 1-置顶;
+     */
+    @TableField("type")
+    private Integer type;
 
-    @Field(type = FieldType.Integer)
-    private int status;
+    /**
+     * 0-正常; 1-精华; 2-拉黑;
+     */
+    @TableField("status")
+    private Integer status;
 
-    @Field(type = FieldType.Date)
-    private Date createTime;
+    /**
+     * 评论数
+     */
+    @TableField("comment_count")
+    private Integer commentCount;
 
-    @Field(type = FieldType.Integer)
-    private int commentCount;
+    @TableField("score")
+    private Double score;
 
-    @Field(type = FieldType.Double)
-    private double score;
+    @TableField("gmt_create")
+    private Date gmtCreate;
 
-
-    @Override
-    public String toString() {
-        return "DiscussPost{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", type=" + type +
-                ", status=" + status +
-                ", createTime=" + createTime +
-                ", commentCount=" + commentCount +
-                ", score=" + score +
-                '}';
-    }
+    @TableField("gmt_update")
+    private Date gmtUpdate;
 }

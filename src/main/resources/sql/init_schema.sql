@@ -26,13 +26,14 @@ DROP TABLE IF EXISTS `comment`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `comment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `entity_type` int(11) DEFAULT NULL,
-  `entity_id` int(11) DEFAULT NULL,
-  `target_id` int(11) DEFAULT NULL,
-  `content` text,
-  `status` int(11) DEFAULT NULL,
-  `create_time` timestamp NULL DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL COMMENT '评论人id',
+  `entity_type` int(11) DEFAULT NULL COMMENT '评论的实体类型',
+  `entity_id` int(11) DEFAULT NULL COMMENT '评论的实体id',
+  `target_id` int(11) DEFAULT NULL COMMENT '位置',
+  `content` text COMMENT '评论内容',
+  `status` int(11) DEFAULT NULL COMMENT '0-正常; 1-删除;',
+  `gmt_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `index_user_id` (`user_id`) /*!80000 INVISIBLE */,
   KEY `index_entity_id` (`entity_id`)
@@ -53,29 +54,12 @@ CREATE TABLE `discuss_post` (
   `content` text,
   `type` int(11) DEFAULT NULL COMMENT '0-普通; 1-置顶;',
   `status` int(11) DEFAULT NULL COMMENT '0-正常; 1-精华; 2-拉黑;',
-  `create_time` timestamp NULL DEFAULT NULL,
-  `comment_count` int(11) DEFAULT NULL,
+  `comment_count` int(11) DEFAULT NULL COMMENT '评论数',
   `score` double DEFAULT NULL,
+  `gmt_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `index_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `login_ticket`
---
-
-DROP TABLE IF EXISTS `login_ticket`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `login_ticket` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `ticket` varchar(45) NOT NULL,
-  `status` int(11) DEFAULT '0' COMMENT '0-有效; 1-无效;',
-  `expired` timestamp NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_ticket` (`ticket`(20))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -93,7 +77,8 @@ CREATE TABLE `message` (
   `conversation_id` varchar(45) NOT NULL,
   `content` text,
   `status` int(11) DEFAULT NULL COMMENT '0-未读;1-已读;2-删除;',
-  `create_time` timestamp NULL DEFAULT NULL,
+  `gmt_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `index_from_id` (`from_id`),
   KEY `index_to_id` (`to_id`),

@@ -1,6 +1,6 @@
 package cn.rich.community.mapper;
 
-import cn.rich.community.entity.User;
+import cn.rich.community.entity.Comment;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author rich
  * @since 2024-07-25
  */
-public interface UserMapper extends BaseMapper<User> {
+public interface CommentMapper extends BaseMapper<Comment> {
 
 }

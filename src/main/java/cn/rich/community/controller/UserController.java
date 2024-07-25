@@ -1,5 +1,6 @@
 package cn.rich.community.controller;
 
+import cn.rich.community.domain.ResponseResult;
 import cn.rich.community.entity.User;
 import cn.rich.community.service.UserService;
 import cn.rich.community.util.CommunityConstant;
@@ -29,7 +30,7 @@ public class UserController implements CommunityConstant {
 
 //     获取user信息
     @RequestMapping(path = "/profile/getUserInfo", method = RequestMethod.GET)
-    public User getUserInfo(@RequestParam("userId") int userId) {
+    public ResponseResult<?> getUserInfo(@RequestParam("userId") int userId) {
         User user = userService.findUserById(userId);
         Optional.ofNullable(user).orElseThrow(() -> new RuntimeException("该用户不存在!"));
 
@@ -47,7 +48,7 @@ public class UserController implements CommunityConstant {
 //            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
 //        }
 
-        return user;
+        return ResponseResult.success(user);
     }
 
 }

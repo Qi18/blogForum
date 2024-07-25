@@ -43,8 +43,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-//    @Value("${server.servlet.context-path}")
-//    private String contextPath;
 
     @Autowired
     private RedisTemplate redisTemplate;
